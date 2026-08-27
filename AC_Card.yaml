@@ -1,0 +1,61 @@
+type: custom:button-card
+entity: climate.sala_condizionatore
+name: sala
+icon: mdi:air-conditioner
+show_state: true
+tap_action:
+  action: more-info
+styles:
+  card:
+    - background: linear-gradient(135deg,
+    - border-radius: 22px
+    - padding: 22px
+    - border: 1px solid rgba(120,160,210,0.22)
+    - box-shadow: 0 8px 28px rgba(0,0,0,0.35)
+    - color: white
+  grid:
+    - grid-template-areas: '"i n power" "i s power"'
+    - grid-template-columns: 60px 1fr 70px
+    - grid-template-rows: min-content min-content
+  icon:
+    - color: '#42a5ff'
+    - width: 42px
+  name:
+    - justify-self: start
+    - font-size: 26px
+    - font-weight: 700
+  state:
+    - justify-self: start
+    - color: |
+        [[[
+          return entity?.state === 'off' ? '#8a94a6' : '#42a5ff';
+        ]]]
+    - font-size: 15px
+custom_fields:
+  power:
+    card:
+      type: custom:button-card
+      entity: climate.sala_condizionatore
+      icon: mdi:power
+      show_name: false
+      tap_action:
+        action: call-service
+        service: climate.set_hvac_mode
+        target:
+          entity_id: climate.sala_condizionatore
+        data:
+          hvac_mode: 'off'
+      styles:
+        card:
+          - width: 58px
+          - height: 58px
+          - border-radius: 50%
+          - background: rgba(255,255,255,0.08)
+          - border: 1px solid rgba(255,255,255,0.14)
+          - box-shadow: none
+        icon:
+          - color: |
+              [[[
+                return entity?.state === 'off' ? '#8a94a6' : '#31a8ff';
+              ]]]
+          - width: 32px
