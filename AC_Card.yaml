@@ -1,61 +1,648 @@
-type: custom:button-card
-entity: climate.sala_condizionatore
-name: sala
-icon: mdi:air-conditioner
-show_state: true
-tap_action:
-  action: more-info
-styles:
-  card:
-    - background: linear-gradient(135deg,
-    - border-radius: 22px
-    - padding: 22px
-    - border: 1px solid rgba(120,160,210,0.22)
-    - box-shadow: 0 8px 28px rgba(0,0,0,0.35)
-    - color: white
-  grid:
-    - grid-template-areas: '"i n power" "i s power"'
-    - grid-template-columns: 60px 1fr 70px
-    - grid-template-rows: min-content min-content
-  icon:
-    - color: '#42a5ff'
-    - width: 42px
-  name:
-    - justify-self: start
-    - font-size: 26px
-    - font-weight: 700
-  state:
-    - justify-self: start
-    - color: |
-        [[[
-          return entity?.state === 'off' ? '#8a94a6' : '#42a5ff';
-        ]]]
-    - font-size: 15px
-custom_fields:
-  power:
-    card:
-      type: custom:button-card
-      entity: climate.sala_condizionatore
-      icon: mdi:power
-      show_name: false
-      tap_action:
-        action: call-service
-        service: climate.set_hvac_mode
-        target:
-          entity_id: climate.sala_condizionatore
-        data:
-          hvac_mode: 'off'
-      styles:
+type: vertical-stack
+cards:
+  - type: custom:button-card
+    entity: climate.sala_condizionatore
+    name: sala
+    icon: mdi:air-conditioner
+    show_state: true
+    tap_action:
+      action: more-info
+    styles:
+      card:
+        - background: linear-gradient(135deg,
+        - border-radius: 22px
+        - padding: 22px
+        - border: 1px solid rgba(120,160,210,0.22)
+        - box-shadow: 0 8px 28px rgba(0,0,0,0.35)
+        - color: white
+      grid:
+        - grid-template-areas: '"i n power" "i s power"'
+        - grid-template-columns: 60px 1fr 70px
+        - grid-template-rows: min-content min-content
+      icon:
+        - color: '#42a5ff'
+        - width: 42px
+      name:
+        - justify-self: start
+        - font-size: 26px
+        - font-weight: 700
+      state:
+        - justify-self: start
+        - color: |
+            [[[
+              return entity?.state === 'off' ? '#8a94a6' : '#42a5ff';
+            ]]]
+        - font-size: 15px
+    custom_fields:
+      power:
         card:
-          - width: 58px
-          - height: 58px
-          - border-radius: 50%
-          - background: rgba(255,255,255,0.08)
-          - border: 1px solid rgba(255,255,255,0.14)
-          - box-shadow: none
-        icon:
-          - color: |
-              [[[
-                return entity?.state === 'off' ? '#8a94a6' : '#31a8ff';
-              ]]]
-          - width: 32px
+          type: custom:button-card
+          entity: climate.sala_condizionatore
+          icon: mdi:power
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_hvac_mode
+            target:
+              entity_id: climate.sala_condizionatore
+            data:
+              hvac_mode: 'off'
+          styles:
+            card:
+              - width: 58px
+              - height: 58px
+              - border-radius: 50%
+              - background: rgba(255,255,255,0.08)
+              - border: 1px solid rgba(255,255,255,0.14)
+              - box-shadow: none
+            icon:
+              - color: |
+                  [[[
+                    return entity?.state === 'off' ? '#8a94a6' : '#31a8ff';
+                  ]]]
+              - width: 32px
+  - type: custom:button-card
+    entity: climate.sala_condizionatore
+    show_icon: false
+    show_name: false
+    show_state: false
+    styles:
+      card:
+        - background: linear-gradient(135deg,
+        - border-radius: 20px
+        - padding: 20px
+        - border: 1px solid rgba(255,255,255,0.10)
+        - color: white
+        - box-shadow: none
+      grid:
+        - grid-template-areas: '"current minus target plus fan"'
+        - grid-template-columns: 1.3fr 56px 1fr 56px
+        - column-gap: 14px
+        - align-items: center
+    custom_fields:
+      current: |
+        [[[
+          const current = entity?.attributes?.current_temperature ?? '--';
+          return `
+            <div>
+              <div style="font-size:14px;color:#b7c1d3;margin-bottom:6px;">
+                Temperatura attuale
+              </div>
+              <div style="font-size:38px;font-weight:700;">
+                ${current} <span style="font-size:20px;color:#c8d0df;">°C</span>
+              </div>
+            </div>
+          `;
+        ]]]
+      minus:
+        card:
+          type: custom:button-card
+          entity: climate.sala_condizionatore
+          icon: mdi:minus
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_temperature
+            target:
+              entity_id: climate.sala_condizionatore
+            data:
+              temperature: |
+                [[[
+                  const raw = Number(entity?.attributes?.temperature);
+                  const t = Number.isFinite(raw) ? raw : 24;
+                  return Math.max(16, t - 0.5);
+                ]]]
+          styles:
+            card:
+              - width: 52px
+              - height: 52px
+              - border-radius: 50%
+              - background: rgba(255,255,255,0.10)
+              - box-shadow: none
+            icon:
+              - color: white
+              - width: 28px
+      target: |
+        [[[
+          const target = entity?.attributes?.temperature ?? '--';
+          return `
+            <div style="text-align:center;">
+              <div style="font-size:14px;color:#b7c1d3;margin-bottom:6px;">
+                Impostata
+              </div>
+              <div style="font-size:38px;font-weight:700;color:#39a7ff;">
+                ${target} <span style="font-size:20px;">°C</span>
+              </div>
+            </div>
+          `;
+        ]]]
+      plus:
+        card:
+          type: custom:button-card
+          entity: climate.sala_condizionatore
+          icon: mdi:plus
+          show_name: false
+          tap_action:
+            action: call-service
+            service: climate.set_temperature
+            target:
+              entity_id: climate.sala_condizionatore
+            data:
+              temperature: |
+                [[[
+                  const raw = Number(entity?.attributes?.temperature);
+                  const t = Number.isFinite(raw) ? raw : 24;
+                  return Math.min(30, t + 1);
+                ]]]
+          styles:
+            card:
+              - width: 52px
+              - height: 52px
+              - border-radius: 50%
+              - background: rgba(255,255,255,0.10)
+              - box-shadow: none
+            icon:
+              - color: white
+              - width: 28px
+  - type: grid
+    columns: 5
+    square: false
+    cards:
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Raffreddamento
+        icon: mdi:snowflake
+        tap_action:
+          action: call-service
+          service: climate.set_hvac_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            hvac_mode: cool
+        styles:
+          card:
+            - height: 82px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.state === 'cool'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - border: 1px solid rgba(255,255,255,0.10)
+            - color: white
+          icon:
+            - color: white
+          name:
+            - font-size: 13px
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Riscaldamento
+        icon: mdi:white-balance-sunny
+        tap_action:
+          action: call-service
+          service: climate.set_hvac_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            hvac_mode: heat
+        styles:
+          card:
+            - height: 82px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.state === 'heat'
+                    ? 'linear-gradient(135deg,#ff8a00,#ff6b00)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - border: 1px solid rgba(255,255,255,0.10)
+            - color: white
+          icon:
+            - color: white
+          name:
+            - font-size: 13px
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Deumidifica
+        icon: mdi:water-outline
+        tap_action:
+          action: call-service
+          service: climate.set_hvac_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            hvac_mode: dry
+        styles:
+          card:
+            - height: 82px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.state === 'dry'
+                    ? 'linear-gradient(135deg,#00acc1,#00838f)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - border: 1px solid rgba(255,255,255,0.10)
+            - color: white
+          icon:
+            - color: white
+          name:
+            - font-size: 13px
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Ventilazione
+        icon: mdi:fan
+        tap_action:
+          action: call-service
+          service: climate.set_hvac_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            hvac_mode: fan_only
+        styles:
+          card:
+            - height: 82px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.state === 'fan_only'
+                    ? 'linear-gradient(135deg,#607d8b,#455a64)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - border: 1px solid rgba(255,255,255,0.10)
+            - color: white
+          icon:
+            - color: white
+          name:
+            - font-size: 13px
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Spento
+        icon: mdi:power
+        tap_action:
+          action: call-service
+          service: climate.turn_off
+          target:
+            entity_id: climate.sala_condizionatore
+        styles:
+          card:
+            - height: 82px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.state === 'off'
+                    ? 'linear-gradient(135deg,#607d8b,#37474f)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - border: 1px solid rgba(255,255,255,0.10)
+            - color: white
+          icon:
+            - color: white
+          name:
+            - font-size: 13px
+  - type: grid
+    columns: 4
+    square: false
+    cards:
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Auto
+        icon: mdi:fan-auto
+        tap_action:
+          action: call-service
+          service: climate.set_fan_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            fan_mode: auto
+        styles:
+          card:
+            - height: 72px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.attributes?.fan_mode === 'auto'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Bassa
+        icon: mdi:fan-speed-1
+        tap_action:
+          action: call-service
+          service: climate.set_fan_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            fan_mode: low
+        styles:
+          card:
+            - height: 72px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.attributes?.fan_mode === 'low'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Media
+        icon: mdi:fan-speed-2
+        tap_action:
+          action: call-service
+          service: climate.set_fan_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            fan_mode: medium
+        styles:
+          card:
+            - height: 72px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.attributes?.fan_mode === 'medium'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: climate.sala_condizionatore
+        name: Alta
+        icon: mdi:fan-speed-3
+        tap_action:
+          action: call-service
+          service: climate.set_fan_mode
+          target:
+            entity_id: climate.sala_condizionatore
+          data:
+            fan_mode: high
+        styles:
+          card:
+            - height: 72px
+            - border-radius: 16px
+            - background: |
+                [[[
+                  return entity?.attributes?.fan_mode === 'high'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+  - square: false
+    type: grid
+    columns: 5
+    cards:
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_verticale
+        name: Top
+        icon: mdi:chevron-double-up
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_verticale
+          data:
+            option: position_1
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === "position_1"
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_verticale
+        name: Alta
+        icon: mdi:chevron-up
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_verticale
+          data:
+            option: position_2
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_2'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_verticale
+        name: Bassa
+        icon: mdi:chevron-down
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_verticale
+          data:
+            option: position_3
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_3'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_verticale
+        name: Bottom
+        icon: mdi:chevron-double-down
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_verticale
+          data:
+            option: position_4
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_4'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_verticale
+        name: Swing
+        icon: mdi:arrow-up-down
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_verticale
+          data:
+            option: swing
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'swing'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+  - square: false
+    type: grid
+    columns: 6
+    cards:
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: SSX
+        icon: mdi:chevron-double-left
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: position_2
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_2'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: SX
+        icon: mdi:chevron-left
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: position_3
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_3'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: Centro
+        icon: mdi:format-horizontal-align-center
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: position_1
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === "position_1"
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: DX
+        icon: mdi:chevron-right
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: position_4
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_4'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: DDX
+        icon: mdi:chevron-double-right
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: position_5
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'position_5'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+      - type: custom:button-card
+        entity: select.sala_direzione_ventola_orizzontale
+        name: Swing
+        icon: mdi:arrow-left-right
+        tap_action:
+          action: call-service
+          service: select.select_option
+          target:
+            entity_id: select.sala_direzione_ventola_orizzontale
+          data:
+            option: swing
+        styles:
+          card:
+            - height: 78px
+            - border-radius: 15px
+            - background: |
+                [[[
+                  return entity?.state === 'swing'
+                    ? 'linear-gradient(135deg,#1e88ff,#2f7df0)'
+                    : 'rgba(20,35,56,0.95)';
+                ]]]
+            - color: white
+grid_options:
+  columns: 12
+  rows: auto
